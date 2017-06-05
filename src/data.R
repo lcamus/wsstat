@@ -16,8 +16,6 @@ getData <- function(fData,n) {
   v <- lapply(v,function(x){
       x[4] <- substring(x[4],2)
       noquote(x[-5])
-    #return(x)
-    #print(paste(x[1],x[4],sep="@"))
   })
   
   print(length(v))
