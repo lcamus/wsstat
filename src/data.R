@@ -1,4 +1,34 @@
+Sys.setlocale("LC_TIME", "English")
 fData <- "data/access.170501"
+
+setDatetime <- function(df) {
+  
+  #split date-time
+  dt <- strsplit(df$dt,":")
+  df$date <- sapply(dt,"[",1)
+  df$hour <- sapply(dt,"[",2)
+  df$min <- sapply(dt,"[",3)
+  df$sec <- sapply(dt,"[",4)
+  df$dt <- NULL
+  rm(dt)
+  
+  #split dates
+  ud <- unique(df$date)
+  mud <- match(df$date,ud)
+  #tm <- table(mud)
+  #ct <- c(1,cumsum(tm))
+  
+  ud <- as.Date(ud,"%d/%b/%Y")
+  
+  
+  for (i in 1:length(ud))
+    df[which(mud==i),]$date <- as.character(ud[i])
+  
+  #df$date <- as.Date(df$date,origin="01-01-1970")
+  
+  return(df)
+  #as.Date("01/May/2017","%d/%b/%Y")
+}
 
 getData <- function(fData,n) {
   
@@ -9,7 +39,7 @@ getData <- function(fData,n) {
   v <-strsplit(v," (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)",perl=T)
   # filter regular logs (begins with @IP):
   v <- v[grepl("^(\\d{1,3}\\.){3}\\d{1,3}$",lapply(v,"[",1))]
-  # remove unuseful logs :
+  # remove unuseful logs:
   v <- v[!grepl("\\.css|\\.js|\\.ico|\\.png|\\.gif",lapply(v,"[",6))]
   
   v <- noquote(v)
@@ -27,10 +57,12 @@ getData <- function(fData,n) {
     )
     ,c("ip","v2","v3","dt","req","status","size","referrer","useragent")
   )
+  
+  lapply(c("req","referrer","useragent"),function(x){df[,c(x)]<-noquote(df[,c(x)])})
   rownames(df) <- NULL
   
   return(df)
   
 }
 
-#
+#d <- getData(fData)
