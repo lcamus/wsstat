@@ -15,19 +15,25 @@ setDatetime <- function(df) {
   #split dates
   ud <- unique(df$date)
   mud <- match(df$date,ud)
-  #tm <- table(mud)
-  #ct <- c(1,cumsum(tm))
-  
   ud <- as.Date(ud,"%d/%b/%Y")
-  
   
   for (i in 1:length(ud))
     df[which(mud==i),]$date <- as.character(ud[i])
   
-  #df$date <- as.Date(df$date,origin="01-01-1970")
+  return(df)
+
+}
+
+setReqHttp <- function(df) {
+  
+  req <- strsplit(df$req," ")
+
+  df$req_method <- gsub("\"","",noquote(sapply(req,"[",1)))
+  df$req_content <- sapply(req,"[",2)
+  df$req_protocol <- gsub("\"","",noquote(sapply(req,"[",3)))
   
   return(df)
-  #as.Date("01/May/2017","%d/%b/%Y")
+  
 }
 
 getData <- function(fData,n) {
