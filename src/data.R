@@ -1,5 +1,26 @@
-Sys.setlocale("LC_TIME", "English")
-fData <- "data/access.170501"
+go <- function() {
+
+  Sys.setlocale("LC_TIME", "English")
+  
+  fData <- "data/access.170501"
+  f_d <- "data/d.RData"
+  f_d_out <- "data/d_out.RData"
+  
+  if (!exists("d")) {
+    if (file.exists(f_d))
+      load(f_d)
+    else
+      d <- getData(fData)
+  }
+  
+  if (!exists("d_out"))
+    if (file.exists(f_d_out))
+      load(f_d_out)
+  else
+    d_out <- head(d[,c("ip","dt","req","status","referrer","useragent")],0)
+  
+}
+
 
 setDatetime <- function(df) {
   
@@ -30,15 +51,29 @@ setReqHttp <- function(df) {
 
   df$req_method <- gsub("\"","",noquote(sapply(req,"[",1)))
   df$req_content <- sub("http://webstat.banque-france.fr","",sapply(req,"[",2),fixed=T)
+  df$req_content <- sub("//","/",df$req_content,fixed=T)
   df$req_protocol <- gsub("\"","",noquote(sapply(req,"[",3)))
   
-  return(df)
+  l <- splitReqHttp(df)
+  
+  return(l)
   
 }
 
 splitReqHttp <- function(df) {
   
-  req <- strsplit(df$req_content,"/")
+  keep <- c("","fr","en","unavailable.html")
+  
+  req <- sapply(strsplit(df$req_content,"/"),"[",-1)
+  r <- sapply(req,"[",1)
+  
+  out <- df[!(r %in% keep) & !is.na(r),]
+  #out <- rbind(out,df[which(is.na(r)),])
+  df_out <- rbind(d_out,out)
+  
+  df <- df[(r %in% keep) | is.na(r),]
+  
+  return(list(df,df_out))
   
 }
 
@@ -74,7 +109,13 @@ getData <- function(fData,n) {
   lapply(c("req","referrer","useragent"),function(x){df[,c(x)]<-noquote(df[,c(x)])})
   rownames(df) <- NULL
   
-  return(df)
+  df <- setDatetime(df)
+  l <- setReqHttp(df)
+  
+  d <<- rbind(d,l[[1]])
+  d_out <<- rbind(d_out,l[[2]])
+  
+  #return(list(df,df_o))
   
 }
 
