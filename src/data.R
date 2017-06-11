@@ -67,9 +67,9 @@ splitReqHttp <- function(df) {
   req <- sapply(strsplit(df$req_content,"/"),"[",-1)
   r <- sapply(req,"[",1)
   
-  out <- df[!(r %in% keep) & !is.na(r),]
+  df_out <- df[!(r %in% keep) & !is.na(r),]
   #out <- rbind(out,df[which(is.na(r)),])
-  df_out <- rbind(d_out,out)
+  #df_out <- rbind(d_out,out)
   
   df <- df[(r %in% keep) | is.na(r),]
   
@@ -112,10 +112,15 @@ getData <- function(fData,n) {
   df <- setDatetime(df)
   l <- setReqHttp(df)
   
-  d <<- rbind(d,l[[1]])
-  d_out <<- rbind(d_out,l[[2]])
+  if (exists("d"))
+    d <<- rbind(d,l[[1]])
+  else
+    d <<- l[[1]]
   
-  #return(list(df,df_o))
+  if (exists("d_out"))
+    d_out <<- rbind(d_out,l[[2]])
+  else
+    d_out <<- l[[2]]
   
 }
 
