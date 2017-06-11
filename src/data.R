@@ -29,12 +29,19 @@ setReqHttp <- function(df) {
   req <- strsplit(df$req," ")
 
   df$req_method <- gsub("\"","",noquote(sapply(req,"[",1)))
-  df$req_content <- sapply(req,"[",2)
+  df$req_content <- sub("http://webstat.banque-france.fr","",sapply(req,"[",2),fixed=T)
   df$req_protocol <- gsub("\"","",noquote(sapply(req,"[",3)))
   
   return(df)
   
 }
+
+splitReqHttp <- function(df) {
+  
+  req <- strsplit(df$req_content,"/")
+  
+}
+
 
 getData <- function(fData,n) {
   
