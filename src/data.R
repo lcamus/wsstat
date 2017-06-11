@@ -68,9 +68,6 @@ splitReqHttp <- function(df) {
   r <- sapply(req,"[",1)
   
   df_out <- df[!(r %in% keep) & !is.na(r),]
-  #out <- rbind(out,df[which(is.na(r)),])
-  #df_out <- rbind(d_out,out)
-  
   df <- df[(r %in% keep) | is.na(r),]
   
   return(list(df,df_out))
