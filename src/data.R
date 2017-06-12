@@ -21,7 +21,6 @@ go <- function() {
   
 }
 
-
 setDatetime <- function(df) {
   
   #split date-time
@@ -77,6 +76,25 @@ splitReqHttp <- function(df) {
   
 }
 
+setLanguage <- function(df) {
+  
+  cond <- grep("^/(fr|en)",df$req_content)
+  df$req_language <- ""
+  df[cond,]$req_language <- substr(df[cond,]$req_content,2,3)
+  
+  return(df)
+  
+}
+
+setAction <- function(df) {
+  
+  cond <- regexpr("/([a-z,A-Z]+)\\.do",d$req_content)
+  df$req_action <- ""
+  #t<-regmatches(d$req_content,regexpr("/([a-z,A-Z]+)\\.do",d$req_content,perl=F))
+  
+  return(df)
+    
+}
 
 getData <- function(fData,n) {
   
@@ -85,7 +103,7 @@ getData <- function(fData,n) {
   v <- readLines(con=fData,n=n)
   v <- v[-1]
   v <-strsplit(v," (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)",perl=T)
-  # filter regular logs (begins with @IP):
+  # remove headers (keep records beginning with @IP):
   v <- v[grepl("^(\\d{1,3}\\.){3}\\d{1,3}$",lapply(v,"[",1))]
   # remove unuseful logs:
   v <- v[!grepl("\\.css|\\.js|\\.ico|\\.png|\\.gif",lapply(v,"[",6))]
