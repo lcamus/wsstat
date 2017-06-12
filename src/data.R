@@ -88,9 +88,22 @@ setLanguage <- function(df) {
 
 setAction <- function(df) {
   
-  cond <- regexpr("/([a-z,A-Z]+)\\.do",d$req_content)
   df$req_action <- ""
-  #t<-regmatches(d$req_content,regexpr("/([a-z,A-Z]+)\\.do",d$req_content,perl=F))
+  
+  # .do actions
+  pat <- "/([a-z,A-Z]+)\\.do"
+  m_v <- regmatches(d$req_content,regexpr(pat,d$req_content))
+  m_v <- sub("/","",m_v)
+  m_i <- grepl(pat,d$req_content)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # api actions
+  pat <- "/api/"
+  m_v <- regmatches(d$req_content,regexpr(pat,d$req_content))
+  m_v <- sub("/","",m_v)
+  m_i <- grepl(pat,d$req_content)
+  #t<-grep("/api/",d$req_content)
   
   return(df)
     
