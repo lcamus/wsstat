@@ -92,18 +92,36 @@ setAction <- function(df) {
   
   # .do actions
   pat <- "/([a-z,A-Z]+)\\.do"
-  m_v <- regmatches(d$req_content,regexpr(pat,d$req_content))
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content))
   m_v <- sub("/","",m_v)
-  m_i <- grepl(pat,d$req_content)
+  m_i <- grepl(pat,df$req_content)
   
   df[m_i,]$req_action <- m_v
   
   # api actions
-  pat <- "/api/"
-  m_v <- regmatches(d$req_content,regexpr(pat,d$req_content))
+  pat <- "(?<=/)api/[a-z,A-Z]+(?=\\?|/)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
   m_v <- sub("/","",m_v)
-  m_i <- grepl(pat,d$req_content)
-  #t<-grep("/api/",d$req_content)
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # lang no action
+  pat <- "^/(fr|en)/$"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=F))
+  #m_v <- sub("/(fr|en)","",m_v)
+  m_v <- sub("/","",m_v)
+  m_i <- grepl(pat,df$req_content,perl=F)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # no action
+  pat <- "^/$"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=F))
+  #m_v <- sub("/","",m_v)
+  m_i <- grepl(pat,df$req_content,perl=F)
+  
+  df[m_i,]$req_action <- m_v
   
   return(df)
     
