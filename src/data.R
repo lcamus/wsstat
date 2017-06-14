@@ -99,9 +99,10 @@ setAction <- function(df) {
   df[m_i,]$req_action <- m_v
   
   # api actions
-  pat <- "(?<=/)api/[a-z,A-Z]+(?=\\?|/)"
+  #pat <- "(?<=/)api/[a-z,A-Z]+(?=\\?|/)"
+  pat <- "(?<=^/(fr|en)/)api/[a-z,A-Z]+(?=(\\?|/)?)"
   m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
-  m_v <- sub("/","",m_v)
+  #m_v <- sub("/","",m_v)
   m_i <- grepl(pat,df$req_content,perl=T)
   
   df[m_i,]$req_action <- m_v
@@ -109,7 +110,6 @@ setAction <- function(df) {
   # lang no action
   pat <- "^/(fr|en)/$"
   m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=F))
-  #m_v <- sub("/(fr|en)","",m_v)
   m_v <- sub("/","",m_v)
   m_i <- grepl(pat,df$req_content,perl=F)
   
@@ -118,10 +118,72 @@ setAction <- function(df) {
   # no action
   pat <- "^/$"
   m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=F))
-  #m_v <- sub("/","",m_v)
   m_i <- grepl(pat,df$req_content,perl=F)
   
   df[m_i,]$req_action <- m_v
+  
+  # Modint
+  pat <- "(?<=/(fr|en)/ws/)getLastUpdateCalendar"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # IMF
+  pat <- "(?<=/(fr|en)/)fmi(?=/)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # unavailable
+  pat <- "(?<=/)unavailable(?=\\.html)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # /lang
+  pat <- "(?<=^/)(fr|en)(?=$)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # publication
+  pat <- "(?<=/)publication(?=/)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # App mobile
+  pat <- "(?<=/(fr|en)/series/sdmx/)[a-z,A-Z]+(?=/)"
+  m_v <- paste0("mob_",regmatches(df$req_content,regexpr(pat,df$req_content,perl=T)))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # quickviewChart
+  pat <- "(?<=/(fr|en)/servlet/)quickviewChart(?=\\?)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+
+  df[m_i,]$req_action <- m_v  
+  
+  # dataTables.locale.txt
+  pat <- "(?<=^/(fr|en)/jsp/)dataTables\\.locale(?=\\.txt)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # browse
+  pat <- "(?<=^/(fr|en)/)browse(?=$)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v  
   
   return(df)
     
