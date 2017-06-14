@@ -99,10 +99,8 @@ setAction <- function(df) {
   df[m_i,]$req_action <- m_v
   
   # api actions
-  #pat <- "(?<=/)api/[a-z,A-Z]+(?=\\?|/)"
   pat <- "(?<=^/(fr|en)/)api/[a-z,A-Z]+(?=(\\?|/)?)"
   m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
-  #m_v <- sub("/","",m_v)
   m_i <- grepl(pat,df$req_content,perl=T)
   
   df[m_i,]$req_action <- m_v
@@ -189,6 +187,21 @@ setAction <- function(df) {
     
 }
 
+setParameters <- function(df) {
+  
+  df$parameters <- NA
+  
+  # api/seriesMetadata
+  pat <- "(?<=^/(fr|en)/api/seriesMetadata/).+(?=$)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$parameters <- m_v
+  
+  return(df)
+  
+}
+
 getData <- function(fData,n) {
   
   if (missing(n)) n=-1
@@ -236,3 +249,4 @@ getData <- function(fData,n) {
 }
 
 #d <- getData(fData)
+#
