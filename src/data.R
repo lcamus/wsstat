@@ -21,7 +21,6 @@ go <- function() {
   
 }
 
-
 setDatetime <- function(df) {
   
   #split date-time
@@ -74,6 +73,131 @@ splitReqHttp <- function(df) {
   
 }
 
+setLanguage <- function(df) {
+  
+  cond <- grep("^/(fr|en)",df$req_content)
+  df$req_language <- ""
+  df[cond,]$req_language <- substr(df[cond,]$req_content,2,3)
+  
+  return(df)
+  
+}
+
+setAction <- function(df) {
+  
+  df$req_action <- ""
+  
+  # .do actions
+  pat <- "/([a-z,A-Z]+)\\.do"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content))
+  m_v <- sub("/","",m_v)
+  m_i <- grepl(pat,df$req_content)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # api actions
+  pat <- "(?<=^/(fr|en)/)api/[a-z,A-Z]+(?=(\\?|/)?)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # lang no action
+  pat <- "^/(fr|en)/$"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=F))
+  m_v <- sub("/","",m_v)
+  m_i <- grepl(pat,df$req_content,perl=F)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # no action
+  pat <- "^/$"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=F))
+  m_i <- grepl(pat,df$req_content,perl=F)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # Modint
+  pat <- "(?<=/(fr|en)/ws/)getLastUpdateCalendar"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # IMF
+  pat <- "(?<=/(fr|en)/)fmi(?=/)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # unavailable
+  pat <- "(?<=/)unavailable(?=\\.html)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # /lang
+  pat <- "(?<=^/)(fr|en)(?=$)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # publication
+  pat <- "(?<=/)publication(?=/)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # App mobile
+  pat <- "(?<=/(fr|en)/series/sdmx/)[a-z,A-Z]+(?=/)"
+  m_v <- paste0("mob_",regmatches(df$req_content,regexpr(pat,df$req_content,perl=T)))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # quickviewChart
+  pat <- "(?<=/(fr|en)/servlet/)quickviewChart(?=\\?)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+
+  df[m_i,]$req_action <- m_v  
+  
+  # dataTables.locale.txt
+  pat <- "(?<=^/(fr|en)/jsp/)dataTables\\.locale(?=\\.txt)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v
+  
+  # browse
+  pat <- "(?<=^/(fr|en)/)browse(?=$)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$req_action <- m_v  
+  
+  return(df)
+    
+}
+
+setParameters <- function(df) {
+  
+  df$parameters <- NA
+  
+  # api/seriesMetadata
+  pat <- "(?<=^/(fr|en)/api/seriesMetadata/).+(?=$)"
+  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
+  m_i <- grepl(pat,df$req_content,perl=T)
+  
+  df[m_i,]$parameters <- m_v
+  
+  return(df)
+  
+}
 
 getData <- function(fData,n) {
   
@@ -82,7 +206,7 @@ getData <- function(fData,n) {
   v <- readLines(con=fData,n=n)
   v <- v[-1]
   v <-strsplit(v," (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)",perl=T)
-  # filter regular logs (begins with @IP):
+  # remove headers (keep records beginning with @IP):
   v <- v[grepl("^(\\d{1,3}\\.){3}\\d{1,3}$",lapply(v,"[",1))]
   # remove unuseful logs:
   v <- v[!grepl("\\.css|\\.js|\\.ico|\\.png|\\.gif",lapply(v,"[",6))]
@@ -122,3 +246,4 @@ getData <- function(fData,n) {
 }
 
 #d <- getData(fData)
+#
