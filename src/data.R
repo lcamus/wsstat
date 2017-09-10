@@ -186,14 +186,32 @@ setAction <- function(df) {
 
 setParameters <- function(df) {
   
+  if (!require(stringr)) install.packages("stringr")
+  
+  setParams <- function(df,action,pat) {
+    pat <-  stringr::str_interp(pat)
+    data <- df$req_content[d$req_action==action,]
+    # pat <- paste0("(?<=^/(fr|en)/",action,"/).+(?=$)")
+    m_v <- regmatches(data,regexpr(pat,data,perl=T))
+    m_i <- grepl(pat,data,perl=T)
+    df[m_i,]$parameters <- m_v
+    return(df)
+  }
+  
   df$parameters <- NA
   
   # api/seriesMetadata
-  pat <- "(?<=^/(fr|en)/api/seriesMetadata/).+(?=$)"
-  m_v <- regmatches(df$req_content,regexpr(pat,df$req_content,perl=T))
-  m_i <- grepl(pat,df$req_content,perl=T)
+  action <- "api/seriesMetadata"
+  df <- setParams(df,action,paste0("(?<=^/(fr|en)/${action}/).+(?=$)"))
+  # action <- "api/seriesMetadata"
+  # data <- df$req_content[d$req_action==action,]
+  # pat <- paste0("(?<=^/(fr|en)/",action,"/).+(?=$)")
+  # m_v <- regmatches(data,regexpr(pat,data,perl=T))
+  # m_i <- grepl(pat,data,perl=T)
+  # df[m_i,]$parameters <- m_v
   
-  df[m_i,]$parameters <- m_v
+  # quickview
+
   
   return(df)
   
