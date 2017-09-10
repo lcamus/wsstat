@@ -193,23 +193,30 @@ setParameters <- function(df) {
     data <- df[df$req_action==action,]$req_content
     m_v <- regmatches(data,regexpr(pat,data,perl=T))
     m_i <- grepl(pat,data,perl=T)
-    df[df$req_action==action,][m_i,]$parameters <- m_v
+    df[df$req_action==action,][m_i,]$req_parameters <- m_v
     return(df)
   }
   
-  df$parameters <- NA
+  df$req_parameters <- NA
   
-  action <- "api/seriesMetadata"
-  sep <- "/"
-  df <- setParams(df,action,stringr::str_interp(paste0("(?<=^/(fr|en)/${action}${sep}).+(?=$)")))
+  lapply(unique(d$req_action),function(x){
+    action <- x
+    eval(parse(text=paste0("df <- ",
+                           "setParams(df,action,stringr::str_interp('(?<=^/(fr|en)/${action}).+(?=$)'))")),
+         envir=parent.frame(2))
+  })
   
-  action <- "quickviewexport.do"
-  sep <- "\\?"
-  df <- setParams(df,action,stringr::str_interp(paste0("(?<=^/(fr|en)/${action}${sep}).+(?=$)")))
-  
-  action <- "browse.do"
-  sep <- "\\?"
-  df <- setParams(df,action,stringr::str_interp(paste0("(?<=^/(fr|en)/${action}${sep}).+(?=$)")))
+  # action <- "api/seriesMetadata"
+  # sep <- "/"
+  # df <- setParams(df,action,stringr::str_interp(paste0("(?<=^/(fr|en)/${action}${sep}).+(?=$)")))
+  # 
+  # action <- "quickviewexport.do"
+  # sep <- "\\?"
+  # df <- setParams(df,action,stringr::str_interp(paste0("(?<=^/(fr|en)/${action}${sep}).+(?=$)")))
+  # 
+  # action <- "browse.do"
+  # sep <- "\\?"
+  # df <- setParams(df,action,stringr::str_interp(paste0("(?<=^/(fr|en)/${action}${sep}).+(?=$)")))
 
   
   return(df)
