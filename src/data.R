@@ -234,8 +234,50 @@ setData <- function(df) {
     
     df$action <- ""
     
-    df[df$req_action=="unavailable",]$action <- "ERROR"
-    df[df$req_action=="api/seriesMetadata",]$action <- "AUTO"
+    # df[df$req_action=="unavailable",]$action <- "ERROR"
+    # df[df$req_action=="api/seriesMetadata",]$action <- "AUTO"
+    map <- list(
+      c("unavailable","ERROR","none","none"),
+      c("api/seriesMetadata","INTERNAL","META","SERIES"),
+      c("quickviewexport.do","DATA","EXPORT_INTER","SERIES"),
+      c("browse.do","PORTAL","BROWSE","NODE"),
+      c("quickview.do","DATA","QUICKVIEW","SERIES"),
+      c("downloadFile.do","DATA","EXPORT_STATIC","SERIES_LIST"),
+      c("searchExport.do","DATA","EXPORT_INTER","SERIES_LIST"),
+      c("export.do","DATA","EXPORT_INTER","SERIES_LIST"),
+      c("api/dimension","INTERNAL","STRUCTURE","DIMENSION"),
+      c("fr/","ENTRY","none","none"),
+      c("print.do","PORTAL","PRINT","MULTI"),
+      c("en/","ENTRY","none","none"),
+      c("connect.do","PORTAL","CONNECT","none"),
+      c("search.do","PORTAL","SEARCH","SERIES_LIST"),
+      c("/","INTERNAL","none","none"),
+      c("browseSelection.do","PORTAL","BROWSE","NODE"),
+      c("api/series","INTERNAL","?","?"),
+      c("api/dataset","INTERNAL","?","?"),
+      c("browseTable.do","PORTAL","BROWSE","NODE"),
+      c("api/node","INTERNAL","?","?"),
+      c("api/seriesWithInfo","INTERNAL","?","?"),
+      c("searchAutoComplete.do","INTERNAL","SEARCH","none"),
+      c("home.do","PORTAL","HOME","none"),
+      c("fillDatatables.do","INTERNAL","BROWSE","SERIES_LIST"),
+      c("myBasket.do","PORTAL","BROWSE","SERIES_LIST"),
+      c("updates.do","PORTAL","BROWSE","SERIES_LIST"),
+      c("calendarFilter.do","PORTAL","CALENDAR_FILTER","none"),
+      c("calendarPublication.do","PORTAL","?","?"),
+      c("mob_data","DATA","MOBILE","?"),
+      c("api/seriebox","INTERNAL","BROWSE","BOXES"),
+      c("getLastUpdateCalendar","DISSEMINATION","MODINT","CALENDAR_UPDATE"),
+      c("publication","PORTAL","PUBLICATION","SERIES_LIST"),
+      c("en","ENTRY","none","none"),
+      c("downloading.do","PORTAL","BROWSE","DOWNLOAD"),
+      c("concepts.do","PORTAL","BROWSE","CONCEPT"),
+      c("browseChart.do","PORTAL","BROWSE_CHART","NODE"),
+      c("fmi","DISSEMINATION","IMF","NODE"),
+      c("fr","ENTRY","",""),
+      c("")
+      
+    )
     
     
     
