@@ -9,8 +9,10 @@ go <- function() {
   if (!exists("d")) {
     if (file.exists(f_d))
       load(f_d)
-    else
+    else {
       d <- getData(fData)
+      d <- setData(d)
+    }
   }
   
   if (!exists("d_out"))
@@ -232,10 +234,10 @@ setData <- function(df) {
     
     #action
     
-    df$action <- ""
+    df$action.domain <- NA
+    df$action.verb <- NA
+    df$action.scope <- NA
     
-    # df[df$req_action=="unavailable",]$action <- "ERROR"
-    # df[df$req_action=="api/seriesMetadata",]$action <- "AUTO"
     map <- list(
       c("unavailable","ERROR","none","none"),
       c("api/seriesMetadata","INTERNAL","META","SERIES"),
@@ -294,41 +296,43 @@ setData <- function(df) {
       c("tooltipFilter.do","INTERNAL","?","")
     )
     
-    
+    for (i in seq_along(map))
+      df[df$req_action==map[[i]][1],c("action.domain","action.verb","action.scope")] <-
+        unlist(lapply(map[[i]][2:4],function(x){rep(x,nrow(df[df$req_action==map[[i]][1],]))}))
     
     return(df)
     
   }
   
-  setParameters <- function(df) {
+  setDataScope <- function(df) {
     
-    # if (!require(stringr)) install.packages("stringr")
-    
-    setParams <- function(df,action,pat) {
-      data <- df[df$req_action==action,]$req_content
-      m_v <- regmatches(data,regexpr(pat,data,perl=T))
-      m_i <- grepl(pat,data,perl=T)
-      df[df$req_action==action,][m_i,]$req_parameters <- m_v
+    setDataScope0 <- function(df,action,pat) {
+      dat <- df[df$action.scope==action,]$req_content
+      m_v <- regmatches(data,regexpr(pat,dat,perl=T))
+      m_i <- grepl(pat,dat,perl=T)
+      df[df$action.scope==action & m_i,]$data <- m_v
       return(df)
     }
     
-    df$req_parameters <- NA
+    # df$req_parameters <- NA
+    # 
+    # lapply(unique(d$req_action),function(x){
+    #   eval(parse(text=paste0("df <- setParams(df,'",x,"','(?<=^/(fr|en)/",x,").+(?=$)')")),
+    #        envir=parent.frame(2))
+    # })
     
-    lapply(unique(d$req_action),function(x){
-      eval(parse(text=paste0("df <- setParams(df,'",x,"','(?<=^/(fr|en)/",x,").+(?=$)')")),
-           envir=parent.frame(2))
-    })
+    df$data <- ""
+    
+    df <- setDataScope0(df,"SERIES","\\?SERIES_KEY=\\d{3}[\\w,\\d,\\.]+")
     
     return(df)
     
   }
-  
-  setLevelData <- function(df) {
-    
-  }
+
   
   df <- setLanguage(df)
   df <- setAction(df)
-  df <- setParameters(df)
+  # df <- setParameters(df)
+  df <- setDataScope(df)
   
 }
