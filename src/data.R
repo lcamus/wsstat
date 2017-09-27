@@ -308,9 +308,13 @@ setData <- function(df) {
     
     setDataScope0 <- function(df,action,pat) {
       dat <- df[df$action.scope==action,]$req_content
-      m_v <- regmatches(data,regexpr(pat,dat,perl=T))
+      m_v <- regmatches(dat,regexpr(pat,dat,perl=T))
       m_i <- grepl(pat,dat,perl=T)
-      df[df$action.scope==action & m_i,]$data <- m_v
+      # m <- data.frame(m_i,stringsAsFactors=F)
+      # m$m_v <- ""
+      # m[m$m_i,]$m_v <- m_v
+      # df[is.na(df$action.scope) | df$action.scope==action,]$data <- m$m_v
+      df[is.na(df$action.scope) | df$action.scope==action,][m_i,]$data <- m_v
       return(df)
     }
     
@@ -323,7 +327,8 @@ setData <- function(df) {
     
     df$data <- ""
     
-    df <- setDataScope0(df,"SERIES","\\?SERIES_KEY=\\d{3}[\\w,\\d,\\.]+")
+    df <- setDataScope0(df,"SERIES","(?<=\\?SERIES_KEY=)\\d{3}[\\w,\\d,\\.]+")
+    # df <- setDataScope0(df,"SERIES_LIST","(?<=\\?SERIES_KEY=)\\d{3}[\\w,\\d,\\.]+")
     
     return(df)
     
